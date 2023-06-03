@@ -1,101 +1,9 @@
+# TDBOT
 
-[//]: # (## db schema 佈署 功能暫定 未實現 可忽略)
+基於 TD Ameritrade API 自動交易系統
 
-[//]: # ()
-[//]: # (### account step)
-
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # ()
-[//]: # (cd ../)
-
-[//]: # (migrate create -ext sql -dir ./migration_sqlc -seq create_virtualaccount_table)
-
-[//]: # ()
-[//]: # (```)
-
-[//]: # ()
-[//]: # (填入sql schema)
-
-[//]: # ()
-[//]: # (create與drop該schema方法)
-
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # (export POSTGRESQL_URL="postgres://postgres:example@localhost:5432/virtualaccount?sslmode=disable")
-
-[//]: # ()
-[//]: # (migrate -database ${POSTGRESQL_URL} -path ./ up)
-
-[//]: # (migrate -database ${POSTGRESQL_URL} -path ./ down)
-
-[//]: # (# 使用單一檔案 進行migration)
-
-[//]: # ()
-[//]: # (# or )
-
-[//]: # (cd migration_sqlc)
-
-[//]: # ()
-[//]: # (migrate -verbose -database ${POSTGRESQL_URL} -source file://migration up 1)
-
-[//]: # (migrate -verbose -database ${POSTGRESQL_URL} -source file://migration down 1)
-
-[//]: # (# 利用目錄 進行migration)
-
-[//]: # ()
-[//]: # ()
-[//]: # (```)
-
-[//]: # ()
-[//]: # ()
-[//]: # ()
-[//]: # ()
-[//]: # (```sql)
-
-[//]: # ()
-[//]: # (insert into accountinfo &#40;account_id,balance&#41; values &#40;0,10000&#41;;)
-
-[//]: # ()
-[//]: # (```)
-
-[//]: # ()
-[//]: # ()
-[//]: # ()
-[//]: # ()
-[//]: # (### symbolStep)
-
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # (migrate create -ext sql -dir ./migration_sqlc -seq create_U_table)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # (export POSTGRESQL_URL="postgres://postgres:example@localhost:5432/SE?sslmode=disable")
-
-[//]: # ()
-[//]: # (cd migration_sqlc)
-
-[//]: # ()
-[//]: # (migrate -verbose -database ${POSTGRESQL_URL} -source file://migration up 1)
-
-[//]: # (migrate -verbose -database ${POSTGRESQL_URL} -source file://migration down 1)
-
-[//]: # (# 利用目錄 進行migration)
-
-[//]: # ()
-[//]: # ()
-[//]: # (```)
-
-
-
+TD Ameritrade 已被 Charles Schwab 併購
+API合併整合中 若券商API更新 有可能隨時會失效
 
 ## Gobot佈署
 
@@ -146,8 +54,8 @@ token from: https://finnhub.io/
 	
 	// 標的: *model.SymbolBase{標的,策略,金額}
 	// 這邊意思為 AAPL 使用策略為 model.MyDemoStrategy, 2000刀
-	// 可多個標的 策略可自訂義 每個標的可使用不同策略 只需符合該街口
-	// 策略自訂義 只需符合 model.StrategyInterface
+	// 可多個標的 策略可自定義 每個標的可使用不同策略 只需符合該接口
+	// 策略自訂義 只需符合 model.StrategyInterface , demo 可參考 model/Strategy.go
 	
     var MySymbol = map[string]*model.SymbolBase{
 	"AAPL": {Symbol: "AAPL", Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(2000)},
