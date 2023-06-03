@@ -1,0 +1,7 @@
+up:
+  - export POSTGRESQL_URL="postgres://postgres:example@localhost:5432/%v?sslmode=disable"
+  - migrate -verbose -database ${POSTGRESQL_URL} -source file://migration up
+
+down:
+  - export POSTGRESQL_URL="postgres://postgres:example@localhost:5432/%v?sslmode=disable"
+  - migrate -verbose -database ${POSTGRESQL_URL} -source file://migration down

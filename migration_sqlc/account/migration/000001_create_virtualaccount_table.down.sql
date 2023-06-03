@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS accountinfo;
+DROP TABLE IF EXISTS hold_symbol;
+DROP TABLE IF EXISTS his_buy;
+DROP TABLE IF EXISTS his_sell;
+DROP TABLE IF EXISTS processing_task;

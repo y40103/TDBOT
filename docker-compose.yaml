@@ -1,0 +1,48 @@
+version: "3"
+services:
+  redis:
+    image: redis:6.2.11
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - /pj/redis/data:/data
+      - /pj/redis/docker/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      TZ: "US/Eastern"
+    networks:
+      bot_net:
+        ipv4_address: 172.26.0.4
+  GoBot:
+    image: golang:1.20.3
+    restart: always
+    command: /pj/GoBot/formal/main/main
+    volumes:
+      - /pj/GoBot/://pj/GoBot/
+      - /pj/finnhubToken/:/pj/finnhubToken/
+    environment:
+      TZ: "US/Eastern"
+    networks:
+      bot_net:
+        ipv4_address: 172.26.0.5
+  db:
+    image: postgres:15.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - "/pj/postgresql/data:/var/lib/postgresql/data"
+    networks:
+      bot_net:
+        ipv4_address: 172.26.0.6
+
+networks:
+  bot_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.26.0.0/16
+          gateway: 172.26.0.1
