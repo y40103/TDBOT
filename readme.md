@@ -14,7 +14,6 @@ hccuse@us-east4-4c /pj> pwd
 /pj
 hccuse@us-east4-4c /pj [1]> tree -L 1
 .
-├── Dockerfile
 ├── GoBot
 ├── docker-compose.yaml
 ├── postgresql
