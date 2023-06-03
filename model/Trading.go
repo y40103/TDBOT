@@ -284,7 +284,7 @@ func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInter
 
 	today := time.Now().In(utils.Loc)
 	// 實際開市 0830
-	marketTime := time.Date(today.Year(), today.Month(), today.Day(), 9, 30, 0, 0, utils.Loc)
+	marketTime := time.Date(today.Year(), today.Month(), today.Day(), 8, 30, 0, 0, utils.Loc)
 
 	MyTrading.ClearPreOrderStatus()
 
@@ -301,7 +301,7 @@ func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInter
 
 		// 鎖住openOder, 該次交易為最後一次交易, 不會再開單
 		if MyTrading.DayTrade == true {
-			MyTrading.InspectTradingTime(time.Date(today.Year(), today.Month(), today.Day(), 11, 30, 0, 0, utils.Loc))
+			MyTrading.InspectTradingTime(time.Date(today.Year(), today.Month(), today.Day(), 14, 50, 0, 0, utils.Loc))
 		}
 
 		// 確認今日操作次數
