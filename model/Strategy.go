@@ -88,6 +88,27 @@ func (self *MyDemoStrategy) LongApply(Data *utils.JudgeReferData) *utils.ApplyOr
 	return applyOrder
 }
 
+func (self *MyDemoStrategy) LongCloseApply(Data *utils.JudgeReferData) *utils.ApplyOrder {
+
+	sq := Data.SQ
+
+	targetPrice, _ := sq.Data[len(sq.Data)-1].Price.Float64()
+	targetPrice = utils.FloorFloat(targetPrice, 2)                                    // 目標價四捨五入
+	if decimal.NewFromFloat(targetPrice).GreaterThan(sq.Data[len(sq.Data)-1].Price) { // 若比最新平均價格還貴 -0.01
+		targetPrice -= 0.01
+	}
+	targetPrice_string := fmt.Sprintf("%.2f", targetPrice) //交易系統只能到小數第二位 ,
+
+	applyOrder := &utils.ApplyOrder{Strategy: self.GetID(), OrderContent: make(map[string]*utils.UnitLimitOrder)}
+
+	applyOrder.OrderKind = self.GetOrderKind()
+
+	applyOrder.DefaultContent = &utils.UnitLimitOrder{Symbol: Data.ReferOrder.Symbol, Price: targetPrice_string, OrderType: -10, CreateTime: sq.LatestData.TradingTime.In(utils.Loc)}
+
+	return applyOrder
+
+}
+
 // 關單判斷
 func (self *MyDemoStrategy) GetCloseJudgement(Data *utils.JudgeReferData) *utils.ApplyOrder {
 
@@ -99,7 +120,7 @@ func (self *MyDemoStrategy) GetCloseJudgement(Data *utils.JudgeReferData) *utils
 
 	if rsi > 80 {
 
-		applyOrder := self.LongApply(Data)
+		applyOrder := self.LongCloseApply(Data)
 
 		return applyOrder
 
