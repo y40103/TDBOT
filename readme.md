@@ -1,4 +1,4 @@
-# TDBOT
+# GoBOT
 
 基於 TD Ameritrade API 自動交易系統
 
