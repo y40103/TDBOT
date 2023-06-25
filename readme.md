@@ -1,11 +1,11 @@
-# GoBOT
+# TDBOT
 
 基於 TD Ameritrade API 自動交易系統
 
 TD Ameritrade 已被 Charles Schwab 併購
 API合併整合中 若券商API更新 有可能隨時會失效
 
-## Gobot佈署
+## TDBOT佈署
 
 參考環境
 ```
