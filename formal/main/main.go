@@ -10,10 +10,6 @@ import (
 
 var TradingDataChannels = make(map[string]chan *utils.TradingData)
 
-var SymbolList = []string{"AAPL", "NVDA", "AMD"}
-
-var RandSymbolIndex = utils.RandSymbolIndex(3, len(SymbolList))
-
 var MySymbol = map[string]*model.SymbolBase{
 	"AMD":  {Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(1600)},
 	"AAPL": {Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(1600)},
