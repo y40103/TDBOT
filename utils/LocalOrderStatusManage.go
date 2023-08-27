@@ -429,7 +429,7 @@ func (self *LocalOrderStatus) ClearOrderStatus(ctx context.Context, OrderID stri
 	res2 := self.pipe.Del(ctx, OrderID) // 刪除該OrderID 內容
 	logrus.Infoln("PIPELINE Del :", res2)
 
-	if len(allorderIDbefore) <= 1 {
+	if len(allorderIDbefore) < 1 { // 本來是 <= 待測試
 		//res3 := self.pipe.Del(ctx, Symbol+"_OTA")
 		//logrus.Infoln("PIPELINE Del:", res3)
 		res4 := self.pipe.SRem(ctx, "TrackingSymbol", Symbol) // 所有orderID 都取消後, 解除 對該symbol追蹤
@@ -476,7 +476,7 @@ func (self *LocalOrderStatus) ClearSymbolAllOrderStatus(ctx context.Context, Sym
 	res3 := self.pipe.Del(ctx, Symbol+"_OTA")
 	logrus.Infoln("PIPELINE Del:", res3)
 
-	res4 := self.pipe.SRem(ctx, "TrackingSymbol", Symbol) // 刪除追蹤標籤
+	res4 := self.pipe.SRem(ctx, "TrackingSymbol", Symbol) // 刪除追蹤標籤 TrackingSymbol
 	logrus.Infoln("PIPELINE Del SRem field:", res4)
 
 	res5 := self.pipe.SRem(ctx, "OpenOrderLock", Symbol)

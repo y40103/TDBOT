@@ -16,6 +16,7 @@ type Indicator struct {
 
 type JudgeReferData struct {
 	SQ         *SQ
+	LongSQ     *SQ
 	IntervalSQ *HisIntervalSQ
 	ReferOrder *UnitLimitOrder
 }

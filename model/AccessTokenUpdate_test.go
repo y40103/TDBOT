@@ -1,13 +1,20 @@
 package model
 
 import (
+	"GoBot/utils"
 	"fmt"
 	"testing"
 	"time"
 )
 
 func TestUpdateAccessToken(t *testing.T) {
-	go UpdateAccessToken()
+	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################",
+	}
+
+	go UpdateAccessToken(orderAPI)
 
 	go func() {
 

@@ -549,6 +549,58 @@ func (self *OrderOperation) ReplaceNormalOrder(OldOrder *UnitLimitOrder, NewOrde
 
 }
 
+func (self *OrderOperation) ReplaceNormalOrderToMarketOrder(OldOrder *UnitLimitOrder, NewOrder *UnitLimitOrder) *UnitLimitOrder {
+
+	attempt := 0
+	for {
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		statusCode := self.OrderAPI.ReplaceToMarketOrder(ctx, fmt.Sprintf("%v", OldOrder.OrderID), NewOrder)
+
+		if HttpSuccess(statusCode) {
+			logrus.Infoln("TimeOut Normal Order Success to Replace Order")
+			break
+		} else if attempt == 3 {
+			logrus.Warnln("TimeOut Normal Order Fail to Replace Order")
+			break
+		}
+
+		attempt += 1
+		logrus.Warnf("TimeOut Normal Order Replace attempt... %v", attempt)
+		time.Sleep(time.Millisecond * time.Duration(attempt*100))
+	}
+
+	var mainorderAPISource, triggerOrderAPISource map[int64]*UnitLimitOrder
+	statusCode := 0
+	mainorderAPISource = make(map[int64]*UnitLimitOrder)
+	triggerOrderAPISource = make(map[int64]*UnitLimitOrder)
+	attempt = 0
+	maxResult := 45
+	for {
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*2)
+		mainorderAPISource, triggerOrderAPISource, statusCode = self.UpdateLimitOrder(ctx, maxResult)
+
+		if HttpSuccess(statusCode) {
+			logrus.Infoln("ReplaceNormalOrder Success to Replace Order to Market Order")
+			break
+		} else if attempt == 3 {
+			logrus.Warnln("ReplaceNormalOrder Fail to Replace Order")
+			break
+		}
+
+		attempt += 1
+		maxResult += 15
+		logrus.Warnf("ReplaceNormalOrder Replace attempt... %v", attempt)
+		time.Sleep(time.Millisecond * time.Duration(100*attempt))
+	}
+
+	matchOrder := self.MatchOrderID(NewOrder, mainorderAPISource, triggerOrderAPISource)
+
+	logrus.Infof("replace && match %+v", *matchOrder)
+
+	return matchOrder
+
+}
+
 func (self *OrderOperation) DeleteOTAFullOrder(OldOrder *UnitLimitOrder) (statusCode int) {
 
 	attempt := 0
@@ -744,16 +796,25 @@ func (self *SymbolTransaction) Static() {
 	self.Performance = self.SumEarns.Div(self.referPrice).Mul(decimal.NewFromInt(100)).RoundFloor(2)
 }
 
-func (self *OrderOperation) GetPeriodTransactionPerformance(startDate string, endDate string) (AllSymbolStatic map[string]*SymbolTransaction) {
+func (self *OrderOperation) GetPeriodTransactionPerformance(startDate string, endDate string, noStatic []string) (AllSymbolStatic map[string]*SymbolTransaction) {
 
 	AllSymbolStatic = make(map[string]*SymbolTransaction)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
 	parm := UnitHisTransaction{TransactionType: "ALL", Symbol: "", StartDate: startDate, EndDate: endDate}
 	httpCode, res := self.OrderAPI.GetTransactionHistory(ctx, parm)
 	if HttpSuccess(httpCode) {
+
+	outer:
 		for _, val := range *res {
 
 			if val.TransactionItem.Instrument.Symbol != "" {
+
+				for _, noSymbol := range noStatic {
+					if noSymbol == val.TransactionItem.Instrument.Symbol {
+						continue outer
+					}
+				}
+
 				_, ok := AllSymbolStatic[val.TransactionItem.Instrument.Symbol]
 				if !ok {
 					AllSymbolStatic[val.TransactionItem.Instrument.Symbol] = new(SymbolTransaction)
@@ -770,5 +831,21 @@ func (self *OrderOperation) GetPeriodTransactionPerformance(startDate string, en
 	}
 
 	return AllSymbolStatic
+
+}
+
+func (self *OrderOperation) GetPosition() (currentPosition []string) {
+	symbol := []string{}
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+	httpCode, res := self.OrderAPI.GetAccountInfo(ctx)
+	if HttpSuccess(httpCode) {
+
+		for _, val := range res.SecuritiesAccount.Positions {
+
+			symbol = append(symbol, val.Instrument.Symbol)
+		}
+	}
+
+	return symbol
 
 }

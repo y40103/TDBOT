@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/shopspring/decimal"
-	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type SymbolBase struct {
@@ -29,7 +27,7 @@ func (self TradingDataSocket) Streaming(streamingChan map[string]chan *utils.Tra
 	}
 
 	for {
-		startTIme := time.Now()
+		//startTIme := time.Now()
 
 		w, _, err := websocket.DefaultDialer.Dial(self.Token, nil)
 		if err != nil {
@@ -59,17 +57,17 @@ func (self TradingDataSocket) Streaming(streamingChan map[string]chan *utils.Tra
 				if Data.Data[symbol].EventNum > 0 {
 					//fmt.Println("-", *Data.Data[symbol])
 					streamingChan[symbol] <- Data.Data[symbol]
-					pg.InsertData(*Data.Data[symbol])
+					//pg.InsertData(*Data.Data[symbol])
 
 				}
 
 			}
 
 			// 每25分鐘嘗試使他自己自動重連
-			if time.Now().After(startTIme.Add(time.Minute * time.Duration(15))) {
-				logrus.Warn("reset webSocket.......")
-				break
-			}
+			//if time.Now().After(startTIme.Add(time.Minute * time.Duration(15))) {
+			//	logrus.Warn("reset webSocket.......")
+			//	break
+			//}
 
 		}
 

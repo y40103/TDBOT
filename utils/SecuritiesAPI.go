@@ -217,6 +217,109 @@ type TransactionUnit struct {
 	OrderDate string `json:"orderDate,omitempty"`
 }
 
+type PositionInfo struct {
+	SecuritiesAccount struct {
+		Type                    string `json:"type"`
+		AccountID               string `json:"accountId"`
+		RoundTrips              int    `json:"roundTrips"`
+		IsDayTrader             bool   `json:"isDayTrader"`
+		IsClosingOnlyRestricted bool   `json:"isClosingOnlyRestricted"`
+		Positions               []struct {
+			ShortQuantity                  int     `json:"shortQuantity"`
+			AveragePrice                   float64 `json:"averagePrice"`
+			CurrentDayCost                 int     `json:"currentDayCost"`
+			CurrentDayProfitLoss           float64 `json:"currentDayProfitLoss"`
+			CurrentDayProfitLossPercentage float64 `json:"currentDayProfitLossPercentage"`
+			LongQuantity                   int     `json:"longQuantity"`
+			SettledLongQuantity            int     `json:"settledLongQuantity"`
+			SettledShortQuantity           int     `json:"settledShortQuantity"`
+			Instrument                     struct {
+				AssetType string `json:"assetType"`
+				Cusip     string `json:"cusip"`
+				Symbol    string `json:"symbol"`
+			} `json:"instrument"`
+			MarketValue                 float64 `json:"marketValue"`
+			MaintenanceRequirement      float64 `json:"maintenanceRequirement"`
+			PreviousSessionLongQuantity int     `json:"previousSessionLongQuantity"`
+		} `json:"positions"`
+		InitialBalances struct {
+			AccruedInterest                  int     `json:"accruedInterest"`
+			AvailableFundsNonMarginableTrade float64 `json:"availableFundsNonMarginableTrade"`
+			BondValue                        int     `json:"bondValue"`
+			BuyingPower                      float64 `json:"buyingPower"`
+			CashBalance                      float64 `json:"cashBalance"`
+			CashAvailableForTrading          int     `json:"cashAvailableForTrading"`
+			CashReceipts                     int     `json:"cashReceipts"`
+			DayTradingBuyingPower            float64 `json:"dayTradingBuyingPower"`
+			DayTradingBuyingPowerCall        int     `json:"dayTradingBuyingPowerCall"`
+			DayTradingEquityCall             int     `json:"dayTradingEquityCall"`
+			Equity                           float64 `json:"equity"`
+			EquityPercentage                 int     `json:"equityPercentage"`
+			LiquidationValue                 float64 `json:"liquidationValue"`
+			LongMarginValue                  float64 `json:"longMarginValue"`
+			LongOptionMarketValue            int     `json:"longOptionMarketValue"`
+			LongStockValue                   float64 `json:"longStockValue"`
+			MaintenanceCall                  int     `json:"maintenanceCall"`
+			MaintenanceRequirement           float64 `json:"maintenanceRequirement"`
+			Margin                           float64 `json:"margin"`
+			MarginEquity                     float64 `json:"marginEquity"`
+			MoneyMarketFund                  int     `json:"moneyMarketFund"`
+			MutualFundValue                  int     `json:"mutualFundValue"`
+			RegTCall                         int     `json:"regTCall"`
+			ShortMarginValue                 int     `json:"shortMarginValue"`
+			ShortOptionMarketValue           int     `json:"shortOptionMarketValue"`
+			ShortStockValue                  int     `json:"shortStockValue"`
+			TotalCash                        int     `json:"totalCash"`
+			IsInCall                         bool    `json:"isInCall"`
+			PendingDeposits                  int     `json:"pendingDeposits"`
+			MarginBalance                    int     `json:"marginBalance"`
+			ShortBalance                     int     `json:"shortBalance"`
+			AccountValue                     float64 `json:"accountValue"`
+		} `json:"initialBalances"`
+		CurrentBalances struct {
+			AccruedInterest                  int     `json:"accruedInterest"`
+			CashBalance                      float64 `json:"cashBalance"`
+			CashReceipts                     int     `json:"cashReceipts"`
+			LongOptionMarketValue            int     `json:"longOptionMarketValue"`
+			LiquidationValue                 float64 `json:"liquidationValue"`
+			LongMarketValue                  float64 `json:"longMarketValue"`
+			MoneyMarketFund                  int     `json:"moneyMarketFund"`
+			Savings                          int     `json:"savings"`
+			ShortMarketValue                 int     `json:"shortMarketValue"`
+			PendingDeposits                  int     `json:"pendingDeposits"`
+			AvailableFunds                   float64 `json:"availableFunds"`
+			AvailableFundsNonMarginableTrade float64 `json:"availableFundsNonMarginableTrade"`
+			BuyingPower                      float64 `json:"buyingPower"`
+			BuyingPowerNonMarginableTrade    float64 `json:"buyingPowerNonMarginableTrade"`
+			DayTradingBuyingPower            float64 `json:"dayTradingBuyingPower"`
+			Equity                           float64 `json:"equity"`
+			EquityPercentage                 int     `json:"equityPercentage"`
+			LongMarginValue                  float64 `json:"longMarginValue"`
+			MaintenanceCall                  int     `json:"maintenanceCall"`
+			MaintenanceRequirement           float64 `json:"maintenanceRequirement"`
+			MarginBalance                    int     `json:"marginBalance"`
+			RegTCall                         int     `json:"regTCall"`
+			ShortBalance                     int     `json:"shortBalance"`
+			ShortMarginValue                 int     `json:"shortMarginValue"`
+			ShortOptionMarketValue           int     `json:"shortOptionMarketValue"`
+			Sma                              float64 `json:"sma"`
+			MutualFundValue                  int     `json:"mutualFundValue"`
+			BondValue                        int     `json:"bondValue"`
+		} `json:"currentBalances"`
+		ProjectedBalances struct {
+			AvailableFunds                   float64 `json:"availableFunds"`
+			AvailableFundsNonMarginableTrade float64 `json:"availableFundsNonMarginableTrade"`
+			BuyingPower                      float64 `json:"buyingPower"`
+			DayTradingBuyingPower            float64 `json:"dayTradingBuyingPower"`
+			DayTradingBuyingPowerCall        int     `json:"dayTradingBuyingPowerCall"`
+			MaintenanceCall                  int     `json:"maintenanceCall"`
+			RegTCall                         int     `json:"regTCall"`
+			IsInCall                         bool    `json:"isInCall"`
+			StockBuyingPower                 float64 `json:"stockBuyingPower"`
+		} `json:"projectedBalances"`
+	} `json:"securitiesAccount"`
+}
+
 func (self *TDOrder) GetAccessToken(ctx context.Context) (httpStatusCode int, accessToken string) {
 
 	// 下次更新時間非預設值 或  時間更新與 現在時間比過期時間還大 , 從api取得token
@@ -496,6 +599,58 @@ func (self *TDOrder) ReplaceOrder(ctx context.Context, OldOrderID string, LimitO
 	return resp.StatusCode
 }
 
+func (self *TDOrder) ReplaceToMarketOrder(ctx context.Context, OldOrderID string, LimitOrder *UnitLimitOrder) (httpStatusCode int) {
+	code, accessToken := self.GetAccessToken(ctx)
+	if code < 200 && code > 299 {
+		logrus.Infoln("can't get accessToken")
+		panic("can't get accessToken")
+	}
+	instruction := map[int]string{10: "BUY", 20: "SELL_SHORT", -10: "SELL", -20: "BUY_TO_COVER"}
+
+	myinstructment := Instrument{Symbol: LimitOrder.Symbol, AssetType: "EQUITY"}
+
+	ordercollection := OrderLegCollection{
+		Instruction: instruction[LimitOrder.OrderType],
+		Quantity:    LimitOrder.Quantity,
+		Instrument:  myinstructment,
+	}
+
+	myorder := PlaceOrder{OrderType: "MARKET",
+		ComplexOrderStrategyType: "None",
+		Session:                  "NORMAL",
+		Duration:                 "DAY",
+		OrderStrategyType:        "SINGLE",
+		OrderLegCollection:       []OrderLegCollection{ordercollection}}
+
+	url := fmt.Sprintf("https://api.tdameritrade.com/v1/accounts/%v/orders/%v", self.AccountID, OldOrderID)
+
+	myclient := req.NewClient() //.DevMode()
+	request := myclient.NewRequest().SetContext(ctx)
+	myheader := make(map[string]string)
+	myheader["Authorization"] = "Bearer " + accessToken
+	myheader["Content-Type"] = "application/json"
+	request = request.SetHeaders(myheader).SetBody(&myorder)
+
+	resp, err := request.Put(url)
+
+	if err != nil {
+		logrus.Warnln(err)
+		return 500
+	}
+
+	logrus.Infoln("Replace OldOrderID: ", OldOrderID)
+	logrus.Infoln("Refer NewOrder: ", myorder)
+
+	if resp.IsSuccessState() {
+		logrus.Infoln(resp.StatusCode)
+		LimitOrder.CreateTime = time.Now().In(Loc)
+	} else if resp.IsErrorState() {
+		logrus.Warnln(resp.StatusCode, resp.Err)
+	}
+
+	return resp.StatusCode
+}
+
 func (self *TDOrder) ReplaceOpenOTAOrder(ctx context.Context, OldOrderID string, MainLimitOrder *UnitLimitOrder) (httpStatusCode int) {
 	code, accessToken := self.GetAccessToken(ctx)
 	if code < 200 && code > 299 {
@@ -588,4 +743,32 @@ func (self *TDOrder) GetTransactionHistory(ctx context.Context, hisTransaction U
 	}
 
 	return resp.StatusCode, &transactions
+}
+
+func (self *TDOrder) GetAccountInfo(ctx context.Context) (code int, info PositionInfo) {
+	code, accessToken := self.GetAccessToken(ctx)
+	if code < 200 && code > 299 {
+		logrus.Infoln("can't get accessToken")
+		panic("can't get accessToken")
+	}
+	PositionInfo := PositionInfo{}
+	url := fmt.Sprintf("https://api.tdameritrade.com/v1/accounts/%v?fields=positions", self.AccountID)
+	myclient := req.NewClient() //.DevMode()
+	request := myclient.NewRequest().SetContext(ctx)
+	myheader := make(map[string]string)
+	myheader["Authorization"] = "Bearer " + accessToken
+	resp, err := request.SetHeaders(myheader).SetSuccessResult(&PositionInfo).Get(url)
+	if err != nil {
+		logrus.Infoln(err)
+	}
+
+	logrus.Infoln("Commit Get History Transaction")
+	if resp.IsSuccessState() {
+		logrus.Infoln(resp.StatusCode)
+	} else if resp.IsErrorState() {
+		logrus.Warnln(resp.StatusCode)
+	}
+
+	return resp.StatusCode, PositionInfo
+
 }

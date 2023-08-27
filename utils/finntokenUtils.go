@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+//collect1: cfd5n71r01qj357er8v0cfd5n71r01qj357er8vg
+//collect2: cfd5ne9r01qj357er950cfd5ne9r01qj357er95g
+//collect3: cfd5nlhr01qj357er98gcfd5nlhr01qj357er990
+//update: '20230201'
+
 type TokenConfFormat struct {
 	Collect1 string `yaml:"collect1"`
 	Collect2 string `yaml:"collect2"`

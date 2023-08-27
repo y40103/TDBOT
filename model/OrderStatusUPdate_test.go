@@ -9,17 +9,14 @@ import (
 )
 
 func TestUpdateStatus(t *testing.T) {
-	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-	}
-
-	go UpdateAccessToken(orderAPI)
 	time.Sleep(time.Second * 2)
 
 	orderSys := utils.OrderOperation{}
 	LocalOrder := utils.LocalOrderStatus{}
+	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = &orderAPI
 	OpenOrder1 := utils.UnitLimitOrder{
 		Symbol:    "GOOG",
@@ -27,7 +24,7 @@ func TestUpdateStatus(t *testing.T) {
 		Quantity:  1,
 		Price:     "82.0",
 	}
-
+	go UpdateAccessToken(orderAPI)
 	OpenOrder2 := utils.UnitLimitOrder{
 		Symbol:    "AAPL",
 		OrderType: 10,
@@ -56,22 +53,21 @@ func TestUpdateStatus(t *testing.T) {
 	defer orderSys.OrderAPI.DeleteOrder(context.Background(), fmt.Sprintf("%v", matchOrder1.OrderID))
 	defer orderSys.OrderAPI.DeleteOrder(context.Background(), fmt.Sprintf("%v", matchOrder2.OrderID))
 
-	go UpdateLocalOrderStatus(1000) // 一秒更新一次
+	go UpdateLocalOrderStatus(1000, orderAPI) // 一秒更新一次
 	time.Sleep(time.Second * 60)
 }
 
 func TestUpdateStatus2(t *testing.T) {
-	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
-	go UpdateAccessToken(orderAPI)
+
 	time.Sleep(time.Second * 2)
 
 	orderSys := utils.OrderOperation{}
-
+	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = &orderAPI
-
-	UpdateLocalOrderStatus(1000) // 一秒更新一次
+	go UpdateAccessToken(orderAPI)
+	UpdateLocalOrderStatus(1000, orderAPI) // 一秒更新一次
 	time.Sleep(time.Second * 60)
 }

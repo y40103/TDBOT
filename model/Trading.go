@@ -17,10 +17,100 @@ type Trading struct {
 	Budget            decimal.Decimal
 	Quantity          int
 	SQ                *utils.SQ
+	LongSQ            *utils.SQ
 	LocalOrderStatus  *utils.LocalOrderStatus
 	OrderAPIOperation *utils.OrderOperation
 	TradingLock       bool // 目前 用於一些交易意外 鎖住下單功能 or 蓄意停止交易能 , 	// 需滿滿足 //	GetID() string, GetOrderKind() string, OpenJudge(sq *utils.SQ) *utils.ApplyOrder, CloseJudge(sq *utils.SQ) *utils.ApplyOrder,
 	DayTrade          bool
+}
+
+// 若倉位有買入 當前working的order會保留
+// 若當前艙位沒東西 但目前有掛單 會將掛單都先刪除
+func (self *Trading) ClearNotInPositionOrder() {
+	myPostition := self.OrderAPIOperation.GetPosition()
+
+	logrus.Infoln("Prepare to Clear PreOrderStatus ...")
+
+	attemp := 0
+
+	symbolList := make([]string, 0) // working的order
+	orderIDList := make([]int64, 0)
+
+	for {
+
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+
+		mainOrder, triggerOder, statusCode := self.OrderAPIOperation.UpdateLimitOrder(ctx, 50)
+
+		logrus.Infoln("PreOrderStatus: ", statusCode)
+
+		if utils.HttpSuccess(statusCode) {
+
+			for _, each := range mainOrder {
+				if each.Status == "WORKING" || each.Status == "QUEUED" || strings.Contains(each.Status, "PENDING") || strings.Contains(each.Status, "AWAITING") {
+
+					symbolList = append(symbolList, each.Symbol)
+					orderIDList = append(orderIDList, each.OrderID)
+
+				}
+
+			}
+
+			for _, each := range triggerOder {
+				if each.Status == "WORKING" || each.Status == "QUEUED" || strings.Contains(each.Status, "PENDING") || strings.Contains(each.Status, "AWAITING") {
+
+					symbolList = append(symbolList, each.Symbol)
+					orderIDList = append(orderIDList, each.OrderID)
+				}
+
+			}
+			break
+		}
+
+		if attemp == 3 {
+			logrus.Warnln("Fail to ClearPreOrderStatus")
+			break
+		}
+
+		attemp += 1
+		logrus.Warnf("retry to ClearPreOrderStatus %v...", attemp)
+	}
+
+outer:
+	for i := 0; i < len(orderIDList); i++ {
+
+		for _, mySymbol := range myPostition {
+
+			if mySymbol == symbolList[i] { // 若倉位有買入 當前working的order會保留
+				continue outer
+			}
+
+		}
+		// 若當前艙位沒東西 但目前有掛單 會將掛單都先刪除
+		order := utils.UnitLimitOrder{Symbol: symbolList[i], OrderID: orderIDList[i]}
+
+		retry := 0
+		for {
+
+			code := self.OrderAPIOperation.DeleteNormalOrder(&order)
+
+			if utils.HttpSuccess(code) {
+				//self.LocalOrderStatus.ClearOrderStatus(context.Background(), fmt.Sprintf("%v", orderIDList[i])) // 本來是刪id
+				self.LocalOrderStatus.ClearSymbolAllOrderStatus(context.Background(), symbolList[i]) // 現在symbol 全刪
+				break
+			}
+
+			if retry == 1 {
+				logrus.Warnln("Fail to ClearPreOrderStatus2")
+				break
+			}
+
+			retry += 1
+			logrus.Warnf("retry to ClearPreOrderStatus2 %v...", attemp)
+		}
+
+	}
+
 }
 
 // 確認線上order狀態 , 若非活動 則刪除local Order Status
@@ -64,7 +154,7 @@ func (self *Trading) ClearPreOrderStatus() {
 			break
 		}
 
-		if attemp == 3 {
+		if attemp == 1 {
 			logrus.Warnln("Fail to ClearPreOrderStatus")
 			break
 		}
@@ -136,7 +226,7 @@ func (self *Trading) InspectOrderOperationLimit() {
 }
 
 func (self *Trading) OpenJudge(Strategy StrategyInterface) *utils.ApplyOrder {
-	data := &utils.JudgeReferData{SQ: self.SQ}
+	data := &utils.JudgeReferData{SQ: self.SQ, LongSQ: self.LongSQ}
 	applyOrder := Strategy.GetOpenJudgement(data)
 
 	if self.TradingLock == true { // 用於通訊意外 鎖住交易功能
@@ -149,7 +239,7 @@ func (self *Trading) OpenJudge(Strategy StrategyInterface) *utils.ApplyOrder {
 
 func (self *Trading) CloseJudge(Strategy StrategyInterface) *utils.ApplyOrder {
 	Open, _ := self.LocalOrderStatus.GetOpenCloseOrder(context.Background(), self.Symbol)
-	data := &utils.JudgeReferData{SQ: self.SQ, ReferOrder: Open}
+	data := &utils.JudgeReferData{SQ: self.SQ, ReferOrder: Open, LongSQ: self.LongSQ}
 	applyOrder := Strategy.GetCloseJudgement(data)
 
 	//if self.TradingLock == true { // 用於通訊意外 鎖住交易功能   // 主要鎖住openJudge
@@ -268,14 +358,17 @@ func (self *Trading) ProcessApplyOrder(applyOrder *utils.ApplyOrder) {
 }
 
 func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInterface, Budget decimal.Decimal, OrderTimeOut int, DataChannel chan *utils.TradingData) {
+
 	orderAPI := &OrderAPI
 	OrderAPIOperate := utils.OrderOperation{}
 	OrderAPIOperate.OrderAPI = orderAPI
-	sq := utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * 30}
+	sq := utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * 5}
+	longSQ := utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * 300}
 	MyTrading := &Trading{Symbol: Symbol,
 		DayTrade:          true,
 		Budget:            Budget,
 		SQ:                &sq,
+		LongSQ:            &longSQ,
 		LocalOrderStatus:  &utils.LocalOrderStatus{},
 		OrderAPIOperation: &OrderAPIOperate}
 
@@ -286,6 +379,10 @@ func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInter
 	// 實際開市 0830
 	marketTime := time.Date(today.Year(), today.Month(), today.Day(), 8, 30, 0, 0, utils.Loc)
 
+	rand.Seed(time.Now().UnixNano())
+	time.Sleep(time.Second * time.Duration(rand.Intn(5)))
+	MyTrading.ClearNotInPositionOrder()
+	time.Sleep(time.Second * 1)
 	MyTrading.ClearPreOrderStatus()
 
 	for {
@@ -301,13 +398,15 @@ func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInter
 
 		// 鎖住openOder, 該次交易為最後一次交易, 不會再開單
 		if MyTrading.DayTrade == true {
-			MyTrading.InspectTradingTime(time.Date(today.Year(), today.Month(), today.Day(), 14, 50, 0, 0, utils.Loc))
+			MyTrading.InspectTradingTime(time.Date(today.Year(), today.Month(), today.Day(), 15, 30, 0, 0, utils.Loc))
 		}
 
 		// 確認今日操作次數
 		MyTrading.InspectOrderOperationLimit()
 
 		MyTrading.SQ.Append(NewStreamingData)
+
+		MyTrading.LongSQ.Append(NewStreamingData)
 
 		MyTrading.GetQuantity()
 		// 初始化Symbol交易數量
@@ -545,7 +644,10 @@ func MainTrading(OrderAPI utils.TDOrder, Symbol string, MyStrategy StrategyInter
 
 				} else if stage == 2 {
 
-					NewOrder := MyTrading.OrderAPIOperation.ReplaceNormalOrder(WorkingOrder, newOrder)
+					//NewOrder := MyTrading.OrderAPIOperation.ReplaceNormalOrder(WorkingOrder, newOrder)
+
+					// 用market賣
+					NewOrder := MyTrading.OrderAPIOperation.ReplaceNormalOrderToMarketOrder(WorkingOrder, newOrder)
 					if NewOrder == nil || NewOrder.OrderID == 0 { // 假設match不到 , 有機會是oldOrder 突然被filled掉 所以沒辦法再被replace 400, or replace 200, 但提交出去狀態為rejected
 						continue
 					}

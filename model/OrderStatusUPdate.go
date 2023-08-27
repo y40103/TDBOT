@@ -8,7 +8,7 @@ import (
 )
 
 // unit is milliSecond, min = 1000
-func UpdateLocalOrderStatus(interval int) {
+func UpdateLocalOrderStatus(interval int, orderAPI utils.TDOrder) {
 
 	if interval < 1000 { //防止過度頻繁訪問API
 		interval = 1000
@@ -16,10 +16,6 @@ func UpdateLocalOrderStatus(interval int) {
 
 	orderSys := utils.OrderOperation{}
 	LocalOrder := utils.LocalOrderStatus{}
-	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
 	orderSys.OrderAPI = &orderAPI
 
 	for {
@@ -29,14 +25,14 @@ func UpdateLocalOrderStatus(interval int) {
 		var ctx context.Context
 
 		orderSys.OrderAPI.AccessToken = AccessToken
-		symbols := LocalOrder.GetTrackingSymbol(context.Background())
+		//symbols := LocalOrder.GetTrackingSymbol(context.Background())
 
 		// 若沒有正在追蹤的標的 直接結束該次更新
-		if len(symbols) == 0 {
-			logrus.Infof("NO ANY ORDER, Symbols: %v", symbols)
-			time.Sleep(time.Millisecond * 1000)
-			continue
-		}
+		//if len(symbols) == 0 {
+		//	logrus.Infof("NO ANY ORDER, Symbols: %v", symbols)
+		//	time.Sleep(time.Millisecond * 1000)
+		//	continue
+		//}
 
 		// 失敗重試最多三次
 		count := 0

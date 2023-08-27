@@ -9,9 +9,9 @@ import (
 
 func TestGetAPIAccessToken(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*2000)
 	defer cancel()
 	httpCode, accesstoken := orderAPI.GetAccessToken(ctx)
@@ -22,12 +22,12 @@ func TestGetAPIAccessToken(t *testing.T) {
 
 func TestLimitOrder(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
-	mainOrder := UnitLimitOrder{Symbol: "TSLA", OrderType: 10, Quantity: 1, Price: "170.01"}
+	mainOrder := UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "15"}
 	// 10 buy 20 sell short -10 sell -20 buy to cover
 	code := orderAPI.CreateLimitOrder(ctx, &mainOrder)
 	fmt.Println(code)
@@ -36,9 +36,9 @@ func TestLimitOrder(t *testing.T) {
 // OTA狀態機制  掛單出去 為一個複合的 若main被filled 會掛出第二個 此時若將返回結果限制1 就會已一般sell的order顯示 但若 返回結果顯示2 則會以ota狀態返回
 func TestGetOrderStatus(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
 	code, order := orderAPI.GetCurrentOrderStatus(ctx, "2023-04-12", "2023-04-12", "", "1")
@@ -51,9 +51,9 @@ func TestGetOrderStatus(t *testing.T) {
 // 似乎只能同標的
 func TestOTA(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
 	mainOrder := UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "12.16"}
@@ -66,9 +66,9 @@ func TestOTA(t *testing.T) {
 
 func TestDeleteOrder(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
 	code := orderAPI.DeleteOrder(ctx, "10714858319")
@@ -77,21 +77,33 @@ func TestDeleteOrder(t *testing.T) {
 
 func TestTDOrder_ReplaceOrder(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
-	NewOrder := UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1, Price: "13.16"}
-	code := orderAPI.ReplaceOrder(ctx, "10760942643", &NewOrder)
+	NewOrder := UnitLimitOrder{Symbol: "AAL", OrderType: -10, Price: "12.03", Quantity: 1}
+	code := orderAPI.ReplaceOrder(ctx, "11209483565", &NewOrder)
+	fmt.Println(code)
+}
+
+func TestTDOrder_ReplaceToMarketOrder(t *testing.T) {
+	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
+	defer cancel()
+	NewOrder := UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1}
+	code := orderAPI.ReplaceToMarketOrder(ctx, "10760942643", &NewOrder)
 	fmt.Println(code)
 }
 
 func TestTDOrder_ReplaceOTAOpenOrder(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
 
@@ -106,9 +118,9 @@ func TestTDOrder_ReplaceOTAOpenOrder(t *testing.T) {
 
 func TestTDOrder_GetTransactionHistory(t *testing.T) {
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
 	defer cancel()
 	Param := UnitHisTransaction{TransactionType: "ALL", Symbol: "", StartDate: "2023-05-19", EndDate: "2023-05-21"}
@@ -121,4 +133,29 @@ func TestTDOrder_GetTransactionHistory(t *testing.T) {
 		fmt.Println(val)
 	}
 
+}
+
+func TestTDOrder_GetAccountInfo(t *testing.T) {
+	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*4000)
+	defer cancel()
+	code, res := orderAPI.GetAccountInfo(ctx)
+
+	fmt.Println(code)
+	fmt.Printf("%+v\n", res)
+
+	fmt.Println(len(res.SecuritiesAccount.Positions))
+
+	symbol := []string{}
+
+	for _, val := range res.SecuritiesAccount.Positions {
+
+		symbol = append(symbol, val.Instrument.Symbol)
+
+	}
+
+	fmt.Println(symbol)
 }

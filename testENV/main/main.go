@@ -15,7 +15,7 @@ func Single() {
 	Symbol := "SE"
 	logrus.SetLevel(logrus.DebugLevel)
 	//MyStrategy := &model.WaveStrategy{}
-	MyStrategy := &model.MyDemoStrategy{}
+	MyStrategy := &model.TestStrategy{}
 
 	psql := utils.PsqlClient{}
 	//sq := utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * 5}
@@ -301,10 +301,10 @@ func main() {
 	now := time.Now()
 	//Single()
 
-	Symbols := []string{"AMD", "NVDA", "AAPL", "TSLA"}
+	Symbols := []string{"AAPL", "AMD", "NVDA"}
 	date := "20230508"
 	//h
-	MyStrategy := &model.MyDemoStrategy{}
+	MyStrategy := &model.WaveStrategySingle4{}
 	backtesting := &MultiBackTesting{}
 
 	backtesting.Multiple(date, Symbols, MyStrategy, 70, 5, MyStrategy.GetOrderExpiredTime())

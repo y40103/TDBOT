@@ -380,9 +380,9 @@ func TestLocalOrderStatus_TryReplaceOTATimeOutInOpenStage(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10000)
 	defer cancel()
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = &orderAPI
 
 	// OTA  order template
@@ -488,9 +488,9 @@ func TestLocalOrderStatus_UpdateLocalOrderStatusFromAPIResponse(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10000)
 	defer cancel()
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = &orderAPI
 
 	// OTA  order template

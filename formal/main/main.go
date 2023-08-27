@@ -10,8 +10,14 @@ import (
 
 var TradingDataChannels = make(map[string]chan *utils.TradingData)
 
+var SymbolList = []string{"AAPL", "NVDA", "AMD"}
+
+var RandSymbolIndex = utils.RandSymbolIndex(3, len(SymbolList))
+
 var MySymbol = map[string]*model.SymbolBase{
-	"AAPL": {Symbol: "AAPL", Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(2000)},
+	"AMD":  {Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(1600)},
+	"AAPL": {Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(1600)},
+	"NVDA": {Strategy: &model.MyDemoStrategy{}, Budget: decimal.NewFromInt(1600)},
 }
 
 func init() {
@@ -33,9 +39,9 @@ func main() {
 	tradingSocket := model.TradingDataSocket{Symbols: MySymbol, Token: url}
 
 	orderAPI := utils.TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################",
 	}
 
 	go model.UpdateAccessToken(orderAPI)
@@ -43,7 +49,7 @@ func main() {
 	// 等待AccessToken 初始化
 	time.Sleep(time.Second * 3)
 
-	go model.UpdateLocalOrderStatus(2000)
+	go model.UpdateLocalOrderStatus(2000, orderAPI)
 
 	for symbol, Info := range MySymbol {
 		go model.MainTrading(orderAPI, symbol, Info.Strategy, Info.Budget, Info.Strategy.GetOrderExpiredTime(), TradingDataChannels[symbol])

@@ -13,9 +13,9 @@ func TestSymbolOrderStatus_UpdateOrder(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10000)
 	defer cancel()
 	orderAPI := TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = &orderAPI
 	mainOrder, triggerOrder, _ := orderSys.UpdateLimitOrder(ctx, 200)
 	fmt.Println("main: #########")
@@ -34,9 +34,9 @@ func TestOrderOperation_MatchFullOTAOrderID(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10000)
 	defer cancel()
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 	mainOrder := UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "10.91"}
 	triggerOrder := UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1, Price: "11.99"}
@@ -59,9 +59,9 @@ func TestOrderOperation_MatchOrderID(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10000)
 	defer cancel()
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 	mainOrder := UnitLimitOrder{Symbol: "TSLA", OrderType: 10, Quantity: 1, Price: "170.01"}
 	code := orderAPI.CreateLimitOrder(ctx, &mainOrder)
@@ -92,9 +92,9 @@ func TestOrderOperation_ReplaceCloseOTAOrder(t *testing.T) {
 
 	orderSys := OrderOperation{}
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 	newOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1, Price: "16.08"}
 	oldOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1, Price: "16.02", OrderID: 10789523152}
@@ -106,9 +106,9 @@ func TestOrderOperation_ReplaceOpenOTAOrder(t *testing.T) {
 
 	orderSys := OrderOperation{}
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 	LocalOrder := LocalOrderStatus{}
 	oldOrderMain := &UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "12.10", OrderID: 10789523445, CreateTime: time.Now().In(Loc)}
@@ -148,9 +148,9 @@ func TestOrderOperation_ReplaceNormalOrder(t *testing.T) {
 
 	orderSys := OrderOperation{}
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 	oldOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "10.5", OrderID: 10740097391}
 	newOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: 10, Quantity: 1, Price: "10.7"}
@@ -158,19 +158,33 @@ func TestOrderOperation_ReplaceNormalOrder(t *testing.T) {
 	fmt.Printf("New: %+v", matchOrder)
 }
 
+func TestOrderOperation_ReplaceNormalOrderToMarketOrder(t *testing.T) {
+
+	orderSys := OrderOperation{}
+	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
+	orderSys.OrderAPI = orderAPI
+	oldOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1, Price: "18.70", OrderID: 11209483995}
+	newOrder := &UnitLimitOrder{Symbol: "AAL", OrderType: -10, Quantity: 1}
+	matchOrder := orderSys.ReplaceNormalOrderToMarketOrder(oldOrder, newOrder)
+	fmt.Printf("New: %+v", matchOrder)
+}
+
 func TestOrderOperation_GetDayPerformance(t *testing.T) {
 
 	orderSys := OrderOperation{}
 	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
-		AccountID:    "1234567",
-		ConsumerKey:  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx",
-		RefreshToken: "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"}
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
 	orderSys.OrderAPI = orderAPI
 
-	startDate := "2023-05-15"
-	endDate := "2023-05-20"
-
-	res := orderSys.GetPeriodTransactionPerformance("2023-05-15", "2023-05-20")
+	startDate := "2023-08-08"
+	endDate := "2023-08-08"
+	noStatic := []string{"SE", "U", "AMZN", "META", "GOOG", "MSFT", "AAL"}
+	res := orderSys.GetPeriodTransactionPerformance(startDate, endDate, noStatic)
 
 	SumReferPrice := decimal.Zero
 	SumEarnings := decimal.Zero
@@ -182,5 +196,22 @@ func TestOrderOperation_GetDayPerformance(t *testing.T) {
 	}
 	fmt.Printf("%v - %v\n", startDate, endDate)
 	fmt.Printf("Period Performance = %v / %v = %v %%\n", SumEarnings, SumReferPrice, SumEarnings.Div(SumReferPrice).Mul(decimal.NewFromInt(100)))
+
+}
+
+func TestOrderOperation_GetPosition(t *testing.T) {
+
+	orderSys := OrderOperation{}
+	orderAPI := &TDOrder{Redirect_url: "https://localhost:8080",
+		AccountID:    "XXXXXXXX",
+		ConsumerKey:  "OOOOOOOOOOOOOOOOOOOOOOOOOO",
+		RefreshToken: "#####################################"}
+	orderSys.OrderAPI = orderAPI
+
+	res := orderSys.GetPosition()
+
+	for _, val := range res {
+		fmt.Println(val)
+	}
 
 }

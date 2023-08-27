@@ -14,6 +14,7 @@ type TradingTest struct {
 	Budget          decimal.Decimal
 	Quantity        int
 	SQ              *utils.SQ
+	LongSQ          *utils.SQ
 	IntervalSQ      *utils.HisIntervalSQ
 	TradingLock     bool // 目前 用於一些交易意外 鎖住下單功能 or 蓄意停止交易能 , 	// 需滿滿足 //	GetID() string, GetOrderKind() string, OpenJudge(sq *utils.SQ) *utils.ApplyOrder, CloseJudge(sq *utils.SQ) *utils.ApplyOrder,
 	DayTrade        bool
@@ -73,7 +74,7 @@ func (self *TradingTest) InspectOrderOperationLimit() {
 }
 
 func (self *TradingTest) OpenJudge(Strategy StrategyInterface) *utils.ApplyOrder {
-	referData := utils.JudgeReferData{SQ: self.SQ, IntervalSQ: self.IntervalSQ}
+	referData := utils.JudgeReferData{SQ: self.SQ, LongSQ: self.LongSQ}
 	applyOrder := Strategy.GetOpenJudgement(&referData)
 	if self.TradingLock == true { // 用於通訊意外 鎖住交易功能
 		applyOrder = nil
@@ -85,7 +86,7 @@ func (self *TradingTest) OpenJudge(Strategy StrategyInterface) *utils.ApplyOrder
 
 func (self *TradingTest) CloseJudge(Strategy StrategyInterface) *utils.ApplyOrder {
 	open := self.OrderStatusTest.OpenOrder
-	referData := utils.JudgeReferData{SQ: self.SQ, ReferOrder: open, IntervalSQ: self.IntervalSQ}
+	referData := utils.JudgeReferData{SQ: self.SQ, ReferOrder: open, LongSQ: self.LongSQ}
 	applyOrder := Strategy.GetCloseJudgement(&referData)
 
 	if self.TradingLock == true { // 用於通訊意外 鎖住交易功能
@@ -377,7 +378,7 @@ func (self *OrderStatusTest) UpdateOrderStatus(NewData *utils.TradingData) {
 		}
 		// long
 		// OpenOrder 新進價格小於掛單 成交 你想買便宜貨... 要有人賣更低價 才會成交
-		if self.OpenOrder.OrderType == 10 && NewData.Price.LessThanOrEqual(orderPrice.Sub(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(100)) && NewData.TradingTime.After(self.OpenOrder.CreateTime.Add(time.Millisecond*200)) { // 近來價格需比order多0.01
+		if self.OpenOrder.OrderType == 10 && NewData.Price.LessThanOrEqual(orderPrice.Sub(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(300)) && NewData.TradingTime.After(self.OpenOrder.CreateTime.Add(time.Millisecond*200)) { // 近來價格需比order多0.01
 
 			// 防止奇異點價格 小成交量 價差偏離
 			if NewData.Price.Sub(orderPrice).Div(orderPrice).Mul(decimal.NewFromInt(100)).Abs().GreaterThan(decimal.NewFromFloat32(0.5)) {
@@ -398,7 +399,7 @@ func (self *OrderStatusTest) UpdateOrderStatus(NewData *utils.TradingData) {
 
 			// short
 			// OpenOrder 新進價格小於掛單 成交 你想賣... 要有人買更高 才會成交
-		} else if self.OpenOrder.OrderType == 20 && NewData.Price.GreaterThanOrEqual(orderPrice.Add(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(100)) && NewData.TradingTime.After(self.OpenOrder.CreateTime.Add(time.Millisecond*200)) { // 近來價格需比order多0.01
+		} else if self.OpenOrder.OrderType == 20 && NewData.Price.GreaterThanOrEqual(orderPrice.Add(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(300)) && NewData.TradingTime.After(self.OpenOrder.CreateTime.Add(time.Millisecond*200)) { // 近來價格需比order多0.01
 
 			// 防止奇異點價格 小成交量 價差偏離
 			if NewData.Price.Sub(orderPrice).Div(orderPrice).Mul(decimal.NewFromInt(100)).Abs().GreaterThan(decimal.NewFromFloat32(0.5)) {
@@ -430,7 +431,7 @@ func (self *OrderStatusTest) UpdateOrderStatus(NewData *utils.TradingData) {
 		orderPrice, _ := decimal.NewFromString(self.CloseOrder.Price)
 
 		// 做多 新進價格小於 於掛單 成交 ,  你想賣高價... 要有人想當盤子買高價 才會成交
-		if self.CloseOrder.OrderType == -10 && NewData.Price.GreaterThanOrEqual(orderPrice.Add(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(100)) && NewData.TradingTime.After(self.CloseOrder.CreateTime.Add(time.Millisecond*200)) {
+		if self.CloseOrder.OrderType == -10 && NewData.Price.GreaterThanOrEqual(orderPrice.Add(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(300)) && NewData.TradingTime.After(self.CloseOrder.CreateTime.Add(time.Millisecond*200)) {
 
 			// 防止奇異點價格 小成交量 價差偏離
 			if NewData.Price.Sub(orderPrice).Div(orderPrice).Mul(decimal.NewFromInt(100)).Abs().GreaterThan(decimal.NewFromFloat32(0.5)) {
@@ -459,7 +460,7 @@ func (self *OrderStatusTest) UpdateOrderStatus(NewData *utils.TradingData) {
 		}
 
 		// 做空 新進價格小於掛單 成交 , 你想買便宜獲... 要有人賣更低價 才會成交
-		if self.CloseOrder.OrderType == -20 && NewData.Price.LessThanOrEqual(orderPrice.Sub(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(100)) && NewData.TradingTime.After(self.CloseOrder.CreateTime.Add(time.Millisecond*200)) {
+		if self.CloseOrder.OrderType == -20 && NewData.Price.LessThanOrEqual(orderPrice.Sub(fix)) && NewData.Volume.GreaterThanOrEqual(decimal.NewFromInt(300)) && NewData.TradingTime.After(self.CloseOrder.CreateTime.Add(time.Millisecond*200)) {
 
 			// 防止奇異點價格 小成交量 價差偏離
 			if NewData.Price.Sub(orderPrice).Div(orderPrice).Mul(decimal.NewFromInt(100)).Abs().GreaterThan(decimal.NewFromFloat32(0.5)) {
@@ -558,8 +559,8 @@ func DevTrading(MyStrategy StrategyInterface, PerformanceOutput chan *BackTestPe
 			MyTrading.Symbol = Symbol
 			MyTrading.Budget = Budget
 			MyTrading.DayTrade = MyStrategy.GetDayTrade()
-			MyTrading.SQ = &utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * time.Duration(SQAllowSec)}
-			MyTrading.IntervalSQ = &utils.HisIntervalSQ{SQSet: make([]utils.SQ, 0), TimeAllowSec: 900, IntervalSec: 180}
+			MyTrading.SQ = &utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * time.Duration(SQAllowSec)}        // non = 5
+			MyTrading.LongSQ = &utils.SQ{RedisCli: utils.GetRedis("0"), TimeAllowSec: time.Second * time.Duration(SQAllowSec*60)} // 60*5 = 300
 			MyTrading.TradingDate = data.TradingTime
 			MyTrading.OrderStatusTest.TimeOutSec = OrderExpiredSec
 
@@ -597,7 +598,8 @@ func DevTrading(MyStrategy StrategyInterface, PerformanceOutput chan *BackTestPe
 		}
 
 		MyTrading.SQ.Append(data)
-		MyTrading.IntervalSQ.Append(*MyTrading.SQ)
+		MyTrading.LongSQ.Append(data)
+		//MyTrading.IntervalSQ.Append(*MyTrading.SQ)
 
 		MyTrading.GetQuantity()
 		// 此次交易 購買數量初始化
