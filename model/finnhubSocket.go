@@ -57,7 +57,7 @@ func (self TradingDataSocket) Streaming(streamingChan map[string]chan *utils.Tra
 				if Data.Data[symbol].EventNum > 0 {
 					//fmt.Println("-", *Data.Data[symbol])
 					streamingChan[symbol] <- Data.Data[symbol]
-					//pg.InsertData(*Data.Data[symbol])
+					pg.InsertData(*Data.Data[symbol])
 
 				}
 
