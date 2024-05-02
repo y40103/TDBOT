@@ -45,14 +45,6 @@ hccuse@us-east4-4c /pj [1]> tree -L 1
 
 SocketToken預設路徑: /pj/finnhubToken/finn_token/finn_token.yaml
 
-需三組 若重啟後 會隨機選擇一組使用
-
-```yaml
-
-collect1: XXXXXXXXXX
-collect2: OOOOOOOOOO
-collect3: HHHHHHHHHH
-update: '20230501'
 
 ```
 token from: https://finnhub.io/
